@@ -37,7 +37,7 @@ contract VotingSystem {
         Election storage election = elections[_electionId];
         require(election.active, "Election is not active");
         require(!election.voters[msg.sender], "You have already voted");
-        
+
         election.voters[msg.sender] = true;
         election.candidates[_candidateId].voteCount++;
     }
@@ -51,14 +51,14 @@ contract VotingSystem {
         Election storage election = elections[_electionId];
         uint maxVotes = 0;
         string memory winner;
-        
+
         for (uint i = 1; i <= election.candidateCount; i++) {
             if (election.candidates[i].voteCount > maxVotes) {
                 maxVotes = election.candidates[i].voteCount;
                 winner = election.candidates[i].name;
             }
         }
-        
+
         return (winner, maxVotes);
     }
 }
