@@ -17,17 +17,22 @@ contract VotingSystem {
         bool active;
     }
 
-    mapping(uint => Election) public elections;
     uint public electionCount;
+    mapping(uint => Election) public elections;
 
-    function createElection(string memory _name) public {
+    function createElection(string memory _name, string[] memory _candidates) public {
         electionCount++;
-        elections[electionCount].id = electionCount;
-        elections[electionCount].name = _name;
-        elections[electionCount].active = true;
+        Election storage election = elections[electionCount];
+        election.id = electionCount;
+        election.name = _name;
+        election.active = true;
+
+        for (uint i = 0; i < _candidates.length; i++) {
+            addCandidate(electionCount, _candidates[i]);
+        }
     }
 
-    function addCandidate(uint _electionId, string memory _name) public {
+    function addCandidate(uint _electionId, string memory _name) internal {
         Election storage election = elections[_electionId];
         election.candidateCount++;
         election.candidates[election.candidateCount] = Candidate(election.candidateCount, _name, 0);
@@ -47,18 +52,19 @@ contract VotingSystem {
         election.active = false;
     }
 
-    function getResults(uint _electionId) public view returns (string memory, uint) {
+    function getCandidate(uint _electionId, uint _candidateId) public view returns (uint, string memory, uint) {
+        Candidate storage candidate = elections[_electionId].candidates[_candidateId];
+        return (candidate.id, candidate.name, candidate.voteCount);
+    }
+
+    function getCandidates(uint _electionId) public view returns (Candidate[] memory) {
         Election storage election = elections[_electionId];
-        uint maxVotes = 0;
-        string memory winner;
+        Candidate[] memory candidates = new Candidate[](election.candidateCount);
 
         for (uint i = 1; i <= election.candidateCount; i++) {
-            if (election.candidates[i].voteCount > maxVotes) {
-                maxVotes = election.candidates[i].voteCount;
-                winner = election.candidates[i].name;
-            }
+            candidates[i - 1] = election.candidates[i];
         }
 
-        return (winner, maxVotes);
+        return candidates;
     }
 }
