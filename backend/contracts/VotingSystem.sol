@@ -67,4 +67,8 @@ contract VotingSystem {
 
         return candidates;
     }
+
+    function hasVoted(uint _electionId, address _voter) public view returns (bool) {
+        return elections[_electionId].voters[_voter];
+    }
 }
